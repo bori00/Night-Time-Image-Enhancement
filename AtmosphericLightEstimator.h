@@ -13,15 +13,13 @@ public:
 	*/
 	AtmosphericLightEstimator(double ratio_of_bright_pixels);
 
-	uchar getEstimate(const Mat& img);
+	Vec3b getEstimate(const Mat& img, const Mat& bright_channel_img);
 
 private:
 	double ratio_of_bright_pixels_;
 
-	void removeLowestTopBrightValue(std::map<uchar, int>& values_to_freq);
+	std::vector<std::pair<int, int>> getTopBrightestPixelCoords(const Mat& bright_channel_img);
 
-	void addBrightValueToTop(std::map<uchar, int>& values_to_freq, uchar value);
-
-	uchar getWeightedMean(const std::map<uchar, int>& values_to_freq);
+	Vec3b getMeanOfSelectedPixels(const Mat& img, std::vector<std::pair<int, int>> selected_coords);
 };
 

@@ -7,6 +7,7 @@
 #include "PatchFilter.h"
 #include "AtmosphericLightEstimator.h"
 #include "BrightOnlyTransmissionEstimator.h"
+#include "ImageReconstructor.h"
 
 
 /* ---------------- Parameters ------------------*/
@@ -76,11 +77,17 @@ int main()
 
 		imshow("Dark Channel", dark_channel_img);
 
-		uchar atm_light = atm_light_estimator.getEstimate(bright_channel_img);
+		Vec3b atm_light = atm_light_estimator.getEstimate(img, bright_channel_img);
 
-		printf("Global atmospheric light: %d\n", atm_light);
+		printf("Global atmospheric light: (%d, %d, %d)\n", atm_light[0], atm_light[1], atm_light[2]);
 
-		std::vector<std::vector<double>> t_bright = BrightOnlyTransmissionEstimator().getEstimation(bright_channel_img, atm_light);
+		Mat t_bright = BrightOnlyTransmissionEstimator().getEstimation(bright_channel_img, atm_light);
+
+		imshow("Initial transmission map t_bright", t_bright);
+
+		Mat imgJ = ImageReconstructor().reconstruct(img, atm_light, t_bright);
+
+		imshow("Enhanced Image", imgJ);
 
 		waitKey();
 	}

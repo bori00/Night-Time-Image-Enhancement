@@ -7,6 +7,7 @@
 class BrightOnlyTransmissionEstimator
 {
 public:
-	static std::vector<std::vector<double>> getEstimation(const Mat& bright_channel_img, uchar atm_light);
+	
+	static Mat getEstimation(const Mat& bright_channel_img, Vec3b atm_light);
 };
 

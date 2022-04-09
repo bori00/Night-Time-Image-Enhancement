@@ -1,24 +1,42 @@
 #include "stdafx.h"
 #include "BrightOnlyTransmissionEstimator.h"
 
-std::vector<std::vector<double>> BrightOnlyTransmissionEstimator::getEstimation(const Mat& bright_channel_img, uchar atm_light) {
+Mat BrightOnlyTransmissionEstimator::getEstimation(const Mat& bright_channel_img, Vec3b atm_light) {
 	int height = bright_channel_img.rows;
 	int width = bright_channel_img.cols;
 
-	std::vector<std::vector<double>> t(height);
+	Mat t(height, width, CV_32FC3);
+
+	/*float min = 100;
+	float max = -100;*/
 
 	for (int i = 0; i < height; i++) {
 
-		t[i].resize(width);
-
 		for (int j = 0; j < width; j++) {
 
-			double num = bright_channel_img.at<uchar>(i, j) - atm_light;
-			double den = 255 - atm_light;
+			for (int c = 0; c < 3; c++) {
 
-			t[i][j] = num / den;
+				float num = bright_channel_img.at<uchar>(i, j) - atm_light[c];
+				float den = 255 - atm_light[c];
+
+				/*if (num < 0) {
+					printf("Here");
+				}*/
+
+				t.at<Vec3f>(i, j)[c] = (float)num / den;
+
+				/*if ((float)num / den < min) {
+					min = (float) num / den;
+				}
+				if ((float)num / den > max) {
+					max = (float)num / den;
+				}*/
+			}
 		}
 	}
+
+	// normalize t
+	// t = (t - min) / (max - min);
 
 	return t;
 }

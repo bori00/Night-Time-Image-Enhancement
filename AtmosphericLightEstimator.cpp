@@ -4,8 +4,14 @@
 AtmosphericLightEstimator::AtmosphericLightEstimator(double ratio_of_bright_pixels)
 	: ratio_of_bright_pixels_(ratio_of_bright_pixels) {}
 
-uchar AtmosphericLightEstimator::getEstimate(const Mat& bright_channel_img) {
-	std::map<uchar, int> top_bright_values_to_freq;
+Vec3b AtmosphericLightEstimator::getEstimate(const Mat& img, const Mat& bright_channel_img) {
+	std::vector<std::pair<int, int>> brightest_pixel_coords = getTopBrightestPixelCoords(bright_channel_img);
+
+	return getMeanOfSelectedPixels(img, brightest_pixel_coords);
+}
+
+std::vector<std::pair<int, int>> AtmosphericLightEstimator::getTopBrightestPixelCoords(const Mat& bright_channel_img) {
+	std::multimap<uchar, std::pair<int, int>> top_bright_values_to_coord;
 
 	int height = bright_channel_img.rows;
 	int width = bright_channel_img.cols;
@@ -19,47 +25,34 @@ uchar AtmosphericLightEstimator::getEstimate(const Mat& bright_channel_img) {
 			uchar bright_value = bright_channel_img.at<uchar>(i, j);
 
 			if (curr_values_considered < max_values_considered) {
-				addBrightValueToTop(top_bright_values_to_freq, bright_value);
+				top_bright_values_to_coord.insert(std::make_pair(bright_value, std::make_pair(i, j)));
 				curr_values_considered++;
 			}
 			else {
-				if ((*top_bright_values_to_freq.cbegin()).first < bright_value) {
-					removeLowestTopBrightValue(top_bright_values_to_freq);
-					addBrightValueToTop(top_bright_values_to_freq, bright_value);
-				}
+				top_bright_values_to_coord.erase(top_bright_values_to_coord.cbegin());
+				top_bright_values_to_coord.insert(std::make_pair(bright_value, std::make_pair(i, j)));
 			}
 		}
 	}
 
-	return getWeightedMean(top_bright_values_to_freq);
+	std::vector<std::pair<int, int>> res;
+
+	for (auto it = top_bright_values_to_coord.cbegin(); it != top_bright_values_to_coord.end(); it++) {
+		res.push_back(it->second);
+	}
+
+	return res;
 }
 
-void AtmosphericLightEstimator::removeLowestTopBrightValue(std::map<uchar, int>& values_to_freq) {
-	if ((*values_to_freq.cbegin()).second > 1) {
-		values_to_freq.begin()->second--;
+Vec3b AtmosphericLightEstimator::getMeanOfSelectedPixels(const Mat& img, std::vector<std::pair<int, int>> selected_coords) {
+	long long sum0 = 0, sum1 = 0, sum2 = 0;
+
+	for (const std::pair<int, int>& coord : selected_coords) {
+		sum0 += img.at<Vec3b>(coord.first, coord.second)[0];
+		sum1 += img.at<Vec3b>(coord.first, coord.second)[1];
+		sum2 += img.at<Vec3b>(coord.first, coord.second)[2];
 	}
-	else {
-		values_to_freq.erase(values_to_freq.begin()->first);
-	}
+
+	return Vec3b(sum0 / selected_coords.size(), sum1 / selected_coords.size(), sum2 / selected_coords.size());
 }
 
-void AtmosphericLightEstimator::addBrightValueToTop(std::map<uchar, int>& values_to_freq, uchar value) {
-	if (values_to_freq.find(value) != values_to_freq.end()) {
-		values_to_freq[value]++;
-	}
-	else {
-		values_to_freq[value] = 1;
-	}
-}
-
-uchar AtmosphericLightEstimator::getWeightedMean(const std::map<uchar, int>& values_to_freq) {
-	long long sum = 0;
-	int nr_instances = 0;
-
-	for (auto it = values_to_freq.cbegin(); it != values_to_freq.cend(); ++it) {
-		sum += it->first * it->second;
-		nr_instances += it->second;
-	}
-
-	return sum / nr_instances;
-}
