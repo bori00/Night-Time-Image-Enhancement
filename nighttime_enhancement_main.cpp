@@ -5,6 +5,7 @@
 #include "common.h"
 
 #include "PatchFilter.h"
+#include "AtmosphericLightEstimator.h"
 
 
 /* ---------------- Parameters ------------------*/
@@ -27,8 +28,13 @@ Mat getDarkChannelImage(const Mat& img) {
 int main()
 {
 	char fname[MAX_PATH];
+
+	AtmosphericLightEstimator atm_light_estimator(0.1);
+
 	while (openFileDlg(fname))
 	{
+		printf("----------New Image: %s \n", fname);
+
 		Mat img = imread(fname, IMREAD_COLOR);
 
 		Mat bright_channel_img = getBrightChannelImage(img);
@@ -40,6 +46,10 @@ int main()
 		imshow("Bright Channel", bright_channel_img);
 
 		imshow("Dark Channel", dark_channel_img);
+
+		uchar atm_light = atm_light_estimator.getEstimate(bright_channel_img);
+
+		printf("Global atmospheric light: %d\n", atm_light);
 
 		waitKey();
 	}
