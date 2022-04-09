@@ -6,6 +6,7 @@
 
 #include "PatchFilter.h"
 #include "AtmosphericLightEstimator.h"
+#include "BrightOnlyTransmissionEstimator.h"
 
 
 /* ---------------- Parameters ------------------*/
@@ -15,7 +16,7 @@
 // but the brighter and clearer the final image
 const int PATCH_RADIUS = 7;
 
-const bool COMPUTE_BRUTE_FORCE_CHANNELS = 1;
+const bool COMPUTE_BRUTE_FORCE_CHANNELS = 0;
 
 
 int main()
@@ -78,6 +79,8 @@ int main()
 		uchar atm_light = atm_light_estimator.getEstimate(bright_channel_img);
 
 		printf("Global atmospheric light: %d\n", atm_light);
+
+		std::vector<std::vector<double>> t_bright = BrightOnlyTransmissionEstimator().getEstimation(bright_channel_img, atm_light);
 
 		waitKey();
 	}
