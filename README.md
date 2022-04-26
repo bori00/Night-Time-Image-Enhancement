@@ -1,4 +1,4 @@
-# Nightime Image Enhancement 
+# Nighttime Image Enhancement 
 
 - based on a single image
 - based on bright/dark channel prior
