@@ -114,6 +114,13 @@ int main()
 
 		imshow("Difference", imgComp);
 
+		// simply normalized image
+
+		Mat imgNorm;
+		cv::normalize(img, imgNorm, 0, 255, cv::NORM_MINMAX);
+
+		imshow("Simply Normalized Image", imgNorm);
+
 		waitKey();
 	}
 	return 0;
