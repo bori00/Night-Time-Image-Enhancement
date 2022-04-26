@@ -6,7 +6,7 @@
 
 #include "PatchFilter.h"
 #include "AtmosphericLightEstimator.h"
-#include "BrightOnlyTransmissionEstimator.h"
+#include "TransmissionEstimator.h"
 #include "ImageReconstructor.h"
 
 
@@ -15,9 +15,11 @@
 // patch size = (2 * PATCH_RADIUS + 1) x (2 * PATC_RADIUS + 1)
 // the higher the patch size, the longer the computation time, 
 // but the brighter and clearer the final image
-const int PATCH_RADIUS = 7;
+const int PATCH_RADIUS = 5;
 
 const bool COMPUTE_BRUTE_FORCE_CHANNELS = 0;
+
+const double ALPHA = 0.4;
 
 
 int main()
@@ -46,7 +48,6 @@ int main()
 		t = ((double)getTickCount() - t) / getTickFrequency();
 		// Print (in the console window) the processing time in [ms] 
 		printf("Time (Dynamic) = %.3f [ms]\n", t * 1000);
-
 
 		// todo: remove entire if. Used for testing only
 		if (COMPUTE_BRUTE_FORCE_CHANNELS) {
@@ -81,13 +82,37 @@ int main()
 
 		printf("Global atmospheric light: (%d, %d, %d)\n", atm_light[0], atm_light[1], atm_light[2]);
 
-		Mat t_bright = BrightOnlyTransmissionEstimator().getEstimation(bright_channel_img, atm_light);
 
-		imshow("Initial transmission map t_bright", t_bright);
+		// 1. enhance using bright channel only
+		BrightOnlyTransmissionEstimator t_estimator1;
 
-		Mat imgJ = ImageReconstructor().reconstruct(img, atm_light, t_bright);
+		Mat t_estimate1 = t_estimator1.getEstimation(bright_channel_img, dark_channel_img, atm_light);
 
-		imshow("Enhanced Image", imgJ);
+		imshow("bright channel t estimation", t_estimate1);
+
+		Mat imgJ1 = ImageReconstructor().reconstruct(img, atm_light, t_estimate1);
+
+		imshow("Bright-Only Enhanced Image", imgJ1);
+
+		// 2. enhance using both channels
+		DoubleChannelTransmissionEstimator t_estimator2(ALPHA);
+
+		Mat t_estimate2 = t_estimator2.getEstimation(bright_channel_img, dark_channel_img, atm_light);
+
+		imshow("double channel t estimation", t_estimate2);
+
+		Mat imgJ2 = ImageReconstructor().reconstruct(img, atm_light, t_estimate2);
+
+		imshow("Double-Channel Enhanced Image", imgJ2);
+
+		// comparison
+
+		Mat imgComp;
+		cv::absdiff(imgJ1, imgJ2, imgComp);
+
+		// cv::normalize(imgComp, imgComp, 0, 255, cv::NORM_MINMAX);
+
+		imshow("Difference", imgComp);
 
 		waitKey();
 	}
