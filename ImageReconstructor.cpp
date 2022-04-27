@@ -14,7 +14,6 @@ Mat ImageReconstructor::reconstruct(const Mat& imgI, Vec3b atm_light, Mat& t) {
 			for (int c = 0; c < 3; c++) {
 				double curr_t = max(t_threshold, t.at<Vec3f>(i, j)[c]);
 				imgJ.at<Vec3f>(i, j)[c] = ((double)imgI.at<Vec3b>(i, j)[c] - (double)atm_light[c]) / curr_t + atm_light[c];
-				// printf("Computed value (%d, %d)[%d]: %lf, based on I=%d, t=%lf, A=%d\n", i, j, c, ((double)imgI.at<Vec3b>(i, j)[c] - (double)atm_light[c]) / curr_t + atm_light[c], imgI.at<Vec3b>(i, j)[c], curr_t, atm_light[c]);
 			}
 		}
 	}

@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "common.h"
 
-#include "PatchFilter.h"
+#include "PatchOrderedFilter.h"
 #include "AtmosphericLightEstimator.h"
 #include "TransmissionEstimator.h"
 #include "ImageReconstructor.h"
@@ -19,7 +19,8 @@ const int PATCH_RADIUS = 5;
 
 const bool COMPUTE_BRUTE_FORCE_CHANNELS = 0;
 
-const double ALPHA = 0.4;
+const double ALPHA = 0.4; // for dark-channel-based transmission estimate correction
+const double EPSYLON = 1e3; // for the guided filtering
 
 
 int main()
@@ -40,9 +41,9 @@ int main()
 
 		double t = (double)getTickCount(); // Get the current time [s]
 
-		Mat bright_channel_img = DynamicPatchFilter().getFilteredImg(img, PATCH_RADIUS, &max_filter);
+		Mat bright_channel_img = DynamicPatchOrderedFilter().getFilteredImg(img, PATCH_RADIUS, &max_filter);
 
-		Mat dark_channel_img = DynamicPatchFilter().getFilteredImg(img, PATCH_RADIUS, &min_filter);
+		Mat dark_channel_img = DynamicPatchOrderedFilter().getFilteredImg(img, PATCH_RADIUS, &min_filter);
 
 		// Get the current time again and compute the time difference [s]
 		t = ((double)getTickCount() - t) / getTickFrequency();
@@ -54,9 +55,9 @@ int main()
 
 			t = (double)getTickCount(); // Get the current time [s]
 
-			Mat brute_bright_channel_img = BruteForcePatchFilter().getFilteredImg(img, PATCH_RADIUS, &max_filter);
+			Mat brute_bright_channel_img = BruteForcePatchOrderedFilter().getFilteredImg(img, PATCH_RADIUS, &max_filter);
 
-			Mat brute_dark_channel_img = BruteForcePatchFilter().getFilteredImg(img, PATCH_RADIUS, &min_filter);
+			Mat brute_dark_channel_img = BruteForcePatchOrderedFilter().getFilteredImg(img, PATCH_RADIUS, &min_filter);
 
 			// Get the current time again and compute the time difference [s]
 			t = ((double)getTickCount() - t) / getTickFrequency();
@@ -105,23 +106,32 @@ int main()
 
 		imshow("Double-Channel Enhanced Image", imgJ2);
 
+		// 3. enhance using both channels and guided filtering
+		GuidedFilteringDoubleChannelTransmissionEstimator t_estimator3(ALPHA, EPSYLON, PATCH_RADIUS * 2 + 1, img);
+
+		Mat t_estimate3 = t_estimator3.getEstimation(bright_channel_img, dark_channel_img, atm_light);
+
+		imshow("guided filtering double channel t estimation", t_estimate3);
+
+		Mat imgJ3 = ImageReconstructor().reconstruct(img, atm_light, t_estimate3);
+
+		imshow("Guided Double-Channel Enhanced Image", imgJ3);
+
 		// comparison
 
-		Mat imgComp;
+		/*Mat imgComp;
 		cv::absdiff(imgJ1, imgJ2, imgComp);
 
-		// cv::normalize(imgComp, imgComp, 0, 255, cv::NORM_MINMAX);
-
-		imshow("Difference", imgComp);
+		imshow("Difference", imgComp);*/
 
 		// simply normalized image
 
-		Mat imgNorm;
+		/*Mat imgNorm;
 		cv::normalize(img, imgNorm, 0, 255, cv::NORM_MINMAX);
 
 		imshow("Simply Normalized Image", imgNorm);
 
-		waitKey();
+		waitKey();*/
 	}
 	return 0;
 }

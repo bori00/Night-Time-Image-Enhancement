@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "PatchFilter.h"
+#include "PatchOrderedFilter.h"
 #include <vector>
 
-uchar ChannelIntensityFilter::getTopIntensity(const Vec3b& pixel, uchar curr_value) {
+uchar ChannelOrderedIntensityFilter::getTopIntensity(const Vec3b& pixel, uchar curr_value) {
 	for (int i = 0; i < 3; i++) {
 		if (isHigher(pixel[i], curr_value)) {
 			curr_value = pixel[i];
@@ -11,7 +11,7 @@ uchar ChannelIntensityFilter::getTopIntensity(const Vec3b& pixel, uchar curr_val
 	return curr_value;
 }
 
-uchar ChannelIntensityFilter::getTopIntensity(const Vec3b& pixel) {
+uchar ChannelOrderedIntensityFilter::getTopIntensity(const Vec3b& pixel) {
 	return getTopIntensity(pixel, pixel[0]);
 }
 
@@ -23,7 +23,7 @@ bool ChannelIntensityMinFilter::isHigher(uchar a, uchar b) {
 	return a < b;
 }
 
-Mat BruteForcePatchFilter::getFilteredImg(const Mat& img, int patch_radius, ChannelIntensityFilter* channel_internsity_filter) {
+Mat BruteForcePatchOrderedFilter::getFilteredImg(const Mat& img, int patch_radius, ChannelOrderedIntensityFilter* channel_internsity_filter) {
 	int height = img.rows;
 	int width = img.cols;
 
@@ -39,7 +39,7 @@ Mat BruteForcePatchFilter::getFilteredImg(const Mat& img, int patch_radius, Chan
 	return res;
 }
 
-uchar BruteForcePatchFilter::getPatchCenterFilteredValue(const Mat& img, int patch_center_row, int patch_center_col, int patch_radius, ChannelIntensityFilter* channel_intensity_filter) {
+uchar BruteForcePatchOrderedFilter::getPatchCenterFilteredValue(const Mat& img, int patch_center_row, int patch_center_col, int patch_radius, ChannelOrderedIntensityFilter* channel_intensity_filter) {
 	int height = img.rows;
 	int width = img.cols;
 
@@ -59,7 +59,7 @@ uchar BruteForcePatchFilter::getPatchCenterFilteredValue(const Mat& img, int pat
 	return curr_value;
 }
 
-Mat DynamicPatchFilter::getFilteredImg(const Mat& img, int patch_radius, ChannelIntensityFilter* channel_internsity_filter) {
+Mat DynamicPatchOrderedFilter::getFilteredImg(const Mat& img, int patch_radius, ChannelOrderedIntensityFilter* channel_internsity_filter) {
 	int height = img.rows;
 	int width = img.cols;
 
