@@ -11,7 +11,7 @@
 // patch size = (2 * PATCH_RADIUS + 1) x (2 * PATC_RADIUS + 1)
 // the higher the patch size, the longer the computation time, 
 // but the brighter and clearer the final image
-const int PATCH_RADIUS = 9;
+const int PATCH_RADIUS = 7;
 // for dark-channel-based transmission estimate correction
 const double ALPHA = 0.4;
 // for the guided filtering

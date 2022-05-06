@@ -39,15 +39,14 @@ private:
 class GuidedFilteringDoubleChannelTransmissionEstimator : public TransmissionEstimator
 {
 public:
-	GuidedFilteringDoubleChannelTransmissionEstimator(double alpha, double epsylon, int window_width, Mat guidance_img) : 
+	GuidedFilteringDoubleChannelTransmissionEstimator(double alpha, double epsylon, int window_width, Mat img) : 
 		alpha_(alpha), 
 		epsylon_(epsylon),
 		window_width_(window_width),
 		double_estimator_(alpha)
 	{
-		guidance_img.convertTo(guidance_img_, CV_32FC3);
-		cv::normalize(guidance_img_, guidance_img_, 0, 1, cv::NORM_MINMAX);
-		imshow("1. Guidance Img", guidance_img_);
+		img.convertTo(img_, CV_32FC3);
+		cv::normalize(img_, img_, 0, 1, cv::NORM_MINMAX);
 	}
 
 	Mat getEstimation(const Mat& bright_channel_img, const Mat& dark_channel_img, Vec3b atm_light) override;
@@ -57,5 +56,5 @@ private:
 	double alpha_;
 	double epsylon_;
 	int window_width_;
-	Mat guidance_img_;
+	Mat img_;
 };
