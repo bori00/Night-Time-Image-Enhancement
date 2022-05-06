@@ -20,7 +20,7 @@ Mat ImageReconstructor::reconstruct(const Mat& imgI, Vec3b atm_light, Mat& t) {
 
 	Mat imgNormJ = Mat(height, width, CV_8UC3);
 
-	cv::normalize(imgJ, imgNormJ, 0, 255, cv::NORM_MINMAX, CV_8U); //todo: normalization not mentioned in the article
+	cv::normalize(imgJ, imgNormJ, 0, 255, cv::NORM_MINMAX, CV_8U);
 
 	return imgNormJ;
 }
