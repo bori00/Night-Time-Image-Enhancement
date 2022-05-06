@@ -100,7 +100,7 @@ Mat DynamicPatchOrderedFilter::getFilteredImg(const Mat& img, int patch_radius, 
 		}
 	}
 
-	// ---- pass 1: column-based aggregation
+	// ---- Pass 2: column-based aggregation
 
 	for (int j = 0; j < width; j++) {
 
