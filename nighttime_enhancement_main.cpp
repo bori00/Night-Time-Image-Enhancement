@@ -36,12 +36,12 @@ int main()
 		imwrite(output_foldername + "\\OriginalImage.bmp", img);
 
 		// --------------- 1st step. Bright- and dark-channel computation.
-		ChannelIntensityMaxFilter max_filter;
+		ChannelIntensityMaxOperator max_filter;
 		Mat bright_channel_img = DynamicPatchOrderedFilter().getFilteredImg(img, PATCH_RADIUS, &max_filter);
 		imshow("Bright Channel", bright_channel_img);
 		imwrite(output_foldername + "\\BrightChannel.bmp", bright_channel_img);
 
-		ChannelIntensityMinFilter min_filter;
+		ChannelIntensityMinOperator min_filter;
 		Mat dark_channel_img = DynamicPatchOrderedFilter().getFilteredImg(img, PATCH_RADIUS, &min_filter);
 		imshow("Dark Channel", dark_channel_img);
 		imwrite(output_foldername + "\\DarkChannel.bmp", dark_channel_img);

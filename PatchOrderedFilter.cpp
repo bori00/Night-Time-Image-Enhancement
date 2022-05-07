@@ -2,7 +2,7 @@
 #include "PatchOrderedFilter.h"
 #include <vector>
 
-uchar ChannelOrderedIntensityFilter::getTopIntensity(const Vec3b& pixel, uchar curr_value) {
+uchar ChannelIntensityOrderOperator::getTopIntensity(const Vec3b& pixel, uchar curr_value) {
 	for (int i = 0; i < 3; i++) {
 		if (isHigher(pixel[i], curr_value)) {
 			curr_value = pixel[i];
@@ -11,19 +11,19 @@ uchar ChannelOrderedIntensityFilter::getTopIntensity(const Vec3b& pixel, uchar c
 	return curr_value;
 }
 
-uchar ChannelOrderedIntensityFilter::getTopIntensity(const Vec3b& pixel) {
+uchar ChannelIntensityOrderOperator::getTopIntensity(const Vec3b& pixel) {
 	return getTopIntensity(pixel, pixel[0]);
 }
 
-bool ChannelIntensityMaxFilter::isHigher(uchar a, uchar b) {
+bool ChannelIntensityMaxOperator::isHigher(uchar a, uchar b) {
 	return a > b;
 }
 
-bool ChannelIntensityMinFilter::isHigher(uchar a, uchar b) {
+bool ChannelIntensityMinOperator::isHigher(uchar a, uchar b) {
 	return a < b;
 }
 
-Mat BruteForcePatchOrderedFilter::getFilteredImg(const Mat& img, int patch_radius, ChannelOrderedIntensityFilter* channel_internsity_filter) {
+Mat BruteForcePatchOrderedFilter::getFilteredImg(const Mat& img, int patch_radius, ChannelIntensityOrderOperator* channel_internsity_filter) {
 	int height = img.rows;
 	int width = img.cols;
 
@@ -39,7 +39,7 @@ Mat BruteForcePatchOrderedFilter::getFilteredImg(const Mat& img, int patch_radiu
 	return res;
 }
 
-uchar BruteForcePatchOrderedFilter::getPatchCenterFilteredValue(const Mat& img, int patch_center_row, int patch_center_col, int patch_radius, ChannelOrderedIntensityFilter* channel_intensity_filter) {
+uchar BruteForcePatchOrderedFilter::getPatchCenterFilteredValue(const Mat& img, int patch_center_row, int patch_center_col, int patch_radius, ChannelIntensityOrderOperator* channel_intensity_filter) {
 	int height = img.rows;
 	int width = img.cols;
 
@@ -59,7 +59,7 @@ uchar BruteForcePatchOrderedFilter::getPatchCenterFilteredValue(const Mat& img, 
 	return curr_value;
 }
 
-Mat DynamicPatchOrderedFilter::getFilteredImg(const Mat& img, int patch_radius, ChannelOrderedIntensityFilter* channel_internsity_filter) {
+Mat DynamicPatchOrderedFilter::getFilteredImg(const Mat& img, int patch_radius, ChannelIntensityOrderOperator* channel_internsity_filter) {
 	int height = img.rows;
 	int width = img.cols;
 
